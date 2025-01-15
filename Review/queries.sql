@@ -17,6 +17,7 @@
                  |          |          |                 |                    |                    |        |           | postgres=CTc/postgres
 (10 rows)
 
+
           List of relations
  Schema |  Name   | Type  |  Owner   
 --------+---------+-------+----------
