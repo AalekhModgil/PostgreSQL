@@ -126,6 +126,7 @@ Q4. select member_id,  count(borrowing_id) as no_of_books from borrower group by
 (5 rows)
 
 
+Q5. 
 
 BEGIN
  book_id | title  |  author  | publication_year |  genre  
@@ -152,6 +153,7 @@ ROLLBACK
        6 | Book 6 | Author 1 | 2020-01-01       | Genre 6
 (6 rows)
 
+Q6. 
 BEGIN
  book_id | title  |  author  | publication_year |  genre  
 ---------+--------+----------+------------------+---------
@@ -194,5 +196,19 @@ COMMIT
             4 |       2 |         4 | 2022-02-01  | 2022-02-10 | 2022-02-05
             5 |       3 |         5 | 2022-10-01  | 2022-10-30 | 2022-10-15
             6 |       1 |         1 | 2024-01-01  | 2024-01-10 | 2024-01-12
+(6 rows)
+
+Joins :- 
+
+Q7.  select m.name , bk.title , br.borrow_date from borrower br inner join members m on br.member_id = m.member_id inner join books bk on bk.book_id = br.book_id ; 
+
+  name   | title  | borrow_date 
+----------+--------+-------------
+ Member 1 | Book 1 | 2024-01-01
+ Member 2 | Book 2 | 2025-01-10
+ Member 3 | Book 1 | 2024-01-20
+ Member 4 | Book 2 | 2022-02-01
+ Member 5 | Book 3 | 2022-10-01
+ Member 1 | Book 1 | 2024-01-01
 (6 rows)
 
