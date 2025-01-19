@@ -1,0 +1,85 @@
+Normalization :- 
+
+Process of organizing data in database.
+Structuring tables and their relationships according to specific rules called normal forms.
+Each normal form addresses a specific type of redundancy or dependency.
+Eliminate redundant data.
+Improved data integrity.
+
+First normal form :- 
+
+Each column contains atomic values.
+Each column contains values of a single type.
+No repeating groups or arrays in columns.
+
+Unnormalized table:
+
+Employee_ID	    Name	    Phones
+1	            Aalekh	    12345,  67890
+2	            Aryan	    54321,  98765, 11111
+
+Normalized (1NF):
+
+Employee_ID	    Name	Phone
+1	            Aalekh	12345
+1	            Aalekh	67890
+2	            Aryan	54321
+2	            Aryan	98765
+2	            Aryan	11111
+
+Second normal form :- 
+
+Satisfies 1NF.
+All non-prime attributes (attributes that are not part of a candidate key) must be fully dependent on the primary key. 
+Remove partial dependencies.
+Third normal form :- 
+
+Example :-
+
+Student_ID	Course_ID	Course_Name	    Instructor
+1	        101	        Math	        Dr. Smith
+2	        102	        Physics	        Dr. Johnson
+1	        102	        Physics	        Dr. Johnson
+
+Course table :- 
+
+Course_ID	Course_Name	    Instructor
+101	        Math	        Dr. Smith
+102	        Physics	        Dr. Johnson
+
+
+Enrollments Table:
+
+Student_ID	Course_ID
+1	        101
+2       	102
+1	        102
+
+
+Third normal form :- 
+
+Satisfies 2NF.
+No non-prime attribute depends on another non-prime attribute.
+No transitive dependencies.
+
+Example :- 
+
+employee_id	name	department_id	department_name	manager_id
+1	        Aalekh	    1	        HR	            101
+2	        Aryan	    2	        Engineering	    102
+3	        Aman	    3	        Sales	        103
+
+Enployees :- 
+
+employee_id	name	department_id
+1	        Aalekh	1
+2	        Aryan	2
+3	        Aman	3
+
+Departments :- 
+
+department_id	department_name	manager_id
+1	            HR	            101
+2	            Engineering	    102
+3	            Sales	        103
+
