@@ -1,0 +1,173 @@
+ACID :- 
+
+Atomicity :-
+
+ A transaction is all or nothing.
+
+Transaction should be treated as single unit of work.
+
+Either all operations in the transaction succeed , or none do.
+
+If any operation fails, the database rolls back to its original state.
+
+Example :- 
+
+Suppose you are transferring ₹500 from Account A to Account B.
+
+BEGIN; -- Start a transaction
+
+UPDATE accounts SET balance = balance - 500 WHERE id = 1; -- Deduct from Account A
+
+UPDATE accounts SET balance = balance + 500 WHERE id = 2; -- Add to Account B
+
+COMMIT; -- Finalize the transaction
+
+Now, let’s say there’s a failure after the first UPDATE but before the second UPDATE. Without atomicity, ₹500 would be deducted from Account A, but not added to Account B, leading to inconsistency.
+
+To enforce atomicity, if any part of the transaction fails, PostgreSQL will roll back all changes:
+
+BEGIN;
+
+UPDATE accounts SET balance = balance - 500 WHERE id = 1;
+
+-- Simulating a failure here
+
+ROLLBACK; -- Undo all changes
+
+Result: The balance of Account A remains unchanged.
+
+
+
+Consistency :- 
+
+Ensures that database transitions from one valid state to another.
+
+Database should remain in valid state before and after the transaction.
+
+
+Imagine a banking system where the total balance across all accounts must remain constant. Assume the following table:
+
+
+CREATE TABLE accounts (
+    id SERIAL PRIMARY KEY,
+    balance NUMERIC NOT NULL CHECK (balance >= 0) -- Constraint: No negative balances
+);
+
+INSERT INTO accounts (id, balance) VALUES (1, 1000), (2, 2000);
+
+BEGIN;
+
+UPDATE accounts SET balance = balance - 500 WHERE id = 1; -- Deduct from Account A
+
+UPDATE accounts SET balance = balance + 500 WHERE id = 2; -- Add to Account B
+
+COMMIT;
+
+If any of the UPDATE statements violates a rule (e.g., balance becomes negative), the transaction fails, and the database ensures no partial changes occur.
+
+
+
+
+
+Isolation :- 
+
+It ensures that concurrent transactions does not interfere with each other.
+
+Transactions are executed as if they are the only ones running.
+T1 :- 
+BEGIN;
+SELECT balance FROM accounts WHERE id = 1; -- Balance is 1000
+
+T2 :- (Simultaneously)
+BEGIN;
+UPDATE accounts SET balance = balance - 500 WHERE id = 1;
+COMMIT;
+
+Isolation Level	    Dirty Reads	        Non-Repeatable Reads	        Phantom Reads4
+
+Read Uncommitted	Possible	        Possible	                    Possible
+
+Read Committed	    Not Possible	    Possible	                    Possible
+
+Repeatable Read	    Not Possible	    Not Possible	                Possible
+
+Serializable	    Not Possible	    Not Possible	                Not Possible
+
+Dirty reads :- 
+
+Transaction A: Updates a product price to $200 (but doesn't commit yet).
+BEGIN;
+UPDATE products SET price = 200 WHERE product_id = 1;
+
+Transaction B: Reads the price of the product.
+SELECT price FROM products WHERE product_id = 1; -- Sees $200 (uncommitted value).
+
+Transaction A: Rolls back the update.
+ROLLBACK;
+
+Transaction B: Now has seen a value ($200) that never officially existed.
+
+
+ Non-Repeatable Reads :- 
+
+
+Transaction A: Starts and reads a product price.
+BEGIN;
+SELECT price FROM products WHERE product_id = 1; -- Sees $100.
+
+
+Transaction B: Updates the product price to $200 and commits.
+BEGIN;
+UPDATE products SET price = 200 WHERE product_id = 1;
+COMMIT;
+
+Transaction A: Reads the same product price again.
+
+SELECT price FROM products WHERE product_id = 1; -- Sees $200 now.
+
+Result: Transaction A gets different values ($100 and $200) for the same query.
+
+
+Phantom reads :- 
+
+
+Transaction A: Reads all orders placed on 2025-01-01.
+
+BEGIN;
+SELECT * FROM orders WHERE order_date = '2025-01-01';
+-- Returns: 2 rows.
+Transaction B: Inserts a new order for the same date.
+
+BEGIN;
+INSERT INTO orders (order_id, customer_id, order_date) VALUES (7, 3, '2025-01-01');
+COMMIT;
+Transaction A: Repeats the query.
+
+SELECT * FROM orders WHERE order_date = '2025-01-01';
+-- Returns: 3 rows now (phantom row appears).
+
+
+The default isolation level is Read commited.
+To set the isolation level :- 
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+
+Durability :- 
+
+Ensures that once the transaction is commited it's changes are permanently saved even in the case of system crash or power failure .
+
+
+Write-Ahead Logging (WAL) in PostgreSQL
+WAL ensures durability by writing all changes to a log file before modifying the actual database.
+
+How it works:
+
+Before Commit: Changes are written to the WAL log (an append-only file).
+
+Flushed to Disk: WAL entries are saved to disk for durability.
+
+Data Modified: The actual data in memory is updated.
+
+Commit: Ensures WAL entries are synced to disk, making the transaction permanent.
+
+Benefits: Faster writes, crash recovery, and guaranteed durability for committed transactions.
